@@ -1,3 +1,23 @@
+/*
+ * mpzDAG.cpp
+ * This file is part of tricotomy
+ *
+ * Copyright (C) 2019 - Giacomo Bergami
+ *
+ * tricotomy is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * tricotomy is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tricotomy. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 //
 // Created by giacomo on 08/12/2019.
 //
@@ -226,4 +246,40 @@ BigIntegerForBitMask trichotomyNode::computeBig(trichotomyNode *g, size_t p, tri
     BigIntegerForBitMask dv =  d->computeBig();
     BigIntegerForBitMask gv =  g->computeBig();
     return gv.timesExpExp2(p) + dv;
+}
+
+std::set<trichotomyNode *> expansionAlgorithm(mpzDAG &dag, std::vector<trichotomyEntry> &entries, size_t maxThreshold,
+                                              std::vector<trichotomyEntry> (*newEntries)(size_t)) {
+    std::vector<trichotomyEntry> current{entries};
+
+    // Getting all the possible non-redundant paths to return as results
+    std::set<trichotomyNode*> results;
+
+    // Setting the initial entries as initial paths of length
+    for (const trichotomyEntry& e : entries)
+        results.emplace(e.setPtr);
+
+    // If the length of the path is 1, then we've already got the relationships of interest
+    while (maxThreshold != 1) {
+        std::set<trichotomyEntry> ptrSet;// todo: unordered set. I need to implement the hash function
+        for (const trichotomyEntry& e : current) {
+            for (const trichotomyEntry& resultEntry: newEntries(e.lastId)) {
+                trichotomyNode *resultingSet = dag.Or(e.setPtr, resultEntry.setPtr);
+                if (results.insert(resultingSet).second) { // Checking whether we've already inserted such pointer
+                    ptrSet.emplace(resultEntry.lastId, resultingSet); // If not, insert such into the next elements to be expanded
+                }
+            }
+        }
+
+        if (ptrSet.empty()) { // If I met no further new path to expand, I can quit the iteration
+            return results; // entries will contain the overall computed possible paths
+        } else {
+            // Setting up the elements to be iterated into a vector, so that the iteration can be quicker
+            current.clear();
+            current.insert(current.begin(), ptrSet.begin(), ptrSet.end());
+        }
+        // Countdowning the remaining allowed expansions to be computed
+        maxThreshold--;
+    }
+    return results; // entries will contain the overall computed possible paths
 }

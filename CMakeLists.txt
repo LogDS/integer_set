@@ -37,5 +37,13 @@ set(LIBLDB leveldb)
 set(LIBRDB rocksdb)
 ]]
 
-add_executable(integer_sets main.cpp src/basic_operations.cpp include/basic_operations.h src/BigIntegerForBitMask.cpp include/BigIntegerForBitMask.h include/block_sm_intgraph.h src/MPZOffsetComparator.cpp include/MPZOffsetComparator.h include/RocksDBKeyValue.h mpzDAG.cpp)
-target_link_libraries(integer_sets  ${LIBSNAPPY} ${LIBZ4} ${ROCKSDB_STATIC_LIB})
+add_library(integer_set_lib src/basic_operations.cpp
+                            include/basic_operations.h
+                            src/BigIntegerForBitMask.cpp
+                            include/BigIntegerForBitMask.h
+                            include/block_sm_intgraph.h
+        src/mpzDAG.cpp)
+target_link_libraries(integer_set_lib  gmp)
+
+add_executable(integer_sets main.cpp )
+target_link_libraries(integer_sets  integer_set_lib gmp)
