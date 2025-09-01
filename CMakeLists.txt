@@ -4,7 +4,7 @@ include_directories(include)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(GMP REQUIRED)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 23)
 
 #[[
 #############
@@ -39,10 +39,14 @@ set(LIBRDB rocksdb)
 
 add_library(integer_set_lib src/basic_operations.cpp
                             include/basic_operations.h
-                            src/BigIntegerForBitMask.cpp
-                            include/BigIntegerForBitMask.h
-                            include/block_sm_intgraph.h
-        src/mpzDAG.cpp)
+        submodules/murmur3/MurmurHash3.cpp
+        submodules/murmur3/MurmurHash3.h
+        src/BIgInteger2.cpp
+#                            src/BigIntegerForBitMask.cpp
+#                            include/BigIntegerForBitMask.h
+#                            include/block_sm_intgraph.h
+#        src/mpzDAG.cpp
+)
 target_link_libraries(integer_set_lib  gmp)
 
 add_executable(integer_sets main.cpp )

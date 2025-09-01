@@ -1,0 +1,3 @@
+[submodule "submodules/murmur3"]
+	path = submodules/murmur3
+	url = https://github.com/jrslepak/murmur3/

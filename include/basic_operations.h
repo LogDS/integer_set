@@ -18,7 +18,7 @@
  * along with tricotomy. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+#include <cassert>
 
 //
 // https://www.di.ens.fr/~jv/HomePage/pdf/dichotomy09.pdf
@@ -79,7 +79,7 @@ template <typename Numeric> struct tricotomia {
     }
 
     friend std::ostream &operator<<(std::ostream &os, const tricotomia &tricotomia) {
-        os << "molto: " << tricotomia.g << " p: " << tricotomia.p << " summato: " << tricotomia.d;
+        os << "molto(g): " << tricotomia.g << " p: " << tricotomia.p << " summato(d): " << tricotomia.d;
         os << " test: " << (tricotomia.d+std::pow(2, std::pow(2, tricotomia.p))*tricotomia.g);
         return os;
     }
@@ -111,7 +111,7 @@ struct tricotomiaNode {
      * @tparam Numeric
      * @return
      */
-    template <typename Numeric> Numeric compute() const {
+    template <typename Numeric> size_t compute() const {
         if (is1Or2) {
             return is1Or0 ? 1 : 2;
         } else {
@@ -120,7 +120,6 @@ struct tricotomiaNode {
             Numeric pv =  p->compute<Numeric>();
             Numeric gv =  g_prod1->compute<Numeric>();
             Numeric result = (dv+((Numeric)std::pow(2, std::pow(2, pv)))*gv);
-
             return result;
         }
     }
@@ -146,7 +145,7 @@ struct tricotomiaNode {
         Numeric dv =  d_sum0->compute<Numeric>();
         Numeric pv =  p->compute<Numeric>();
         Numeric gv =  g_prod1->compute<Numeric>();
-        Numeric result = (dv+((Numeric)std::pow(2, std::pow(2, pv)))*gv);
+        Numeric result = (dv+((Numeric)std::pow(2, std::pow(2, (size_t)pv)))*gv);
         std::cout << "d: " << dv << " p: " <<  pv << " g: " << gv  << " ==> " << result << std::endl;
         }
     }
@@ -156,9 +155,11 @@ template <typename Numeric> struct dag {
     std::unordered_map<Numeric, tricotomiaNode>  innerDag;
 
 
-    dag() {
-        innerDag.insert(std::make_pair(0, tricotomiaNode{nullptr, nullptr, nullptr, 0, 1}));
-        innerDag.insert(std::make_pair(1, tricotomiaNode{nullptr, nullptr, nullptr, 1, 1}));
+    dag(Numeric zero, Numeric one) {
+        innerDag.emplace(zero, tricotomiaNode{nullptr, nullptr, nullptr, 0, 1});
+        innerDag.emplace(one, tricotomiaNode{nullptr, nullptr, nullptr, 1, 1});
+        assert(innerDag.contains(zero));
+        assert(innerDag.contains(one));
         //innerDag.insert(std::make_pair(2, tricotomiaNode{nullptr, nullptr, nullptr, 1, 0}));
     }
 
@@ -167,11 +168,16 @@ template <typename Numeric> struct dag {
      * @param n
      * @return
      */
-    tricotomiaNode* get(Numeric n) {
+    template <bool verbose = false> tricotomiaNode* get(Numeric n) {
+        if (verbose)
+            std::cout << "get(" << n << ")" << std::endl;
         typename std::unordered_map<Numeric, tricotomiaNode>::iterator ptr = innerDag.find(n);
         if (ptr != innerDag.end()) return &ptr->second;
         else {
             tricotomia<Numeric> tmp{n};
+            if (verbose)
+            std::cout << tmp << std::endl;
+            // tmp.print<Numeric>();
             tricotomiaNode* g = get(tmp.g);
             tricotomiaNode* d = get(tmp.d);
             tricotomiaNode* p = get(tmp.p);
@@ -308,7 +314,7 @@ template <typename Numeric> struct dag {
             else if (b->p->compareWith(get(0)) == 0)
                 return tauConstructor(b->g_prod1, b->p,get(b->d_sum0->compute<Numeric>() | 1));
             else
-                tauConstructor(b->g_prod1, b->p, Or(a, b->d_sum0));
+                return tauConstructor(b->g_prod1, b->p, Or(a, b->d_sum0));
         } else if (a->p->compareWith(b->p) < 0) {
             return tauConstructor(b->g_prod1, b->p, Or(a, b->d_sum0));
         } else {

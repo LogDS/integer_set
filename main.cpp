@@ -1,30 +1,40 @@
 #include <iostream>
 #include "basic_operations.h"
-#include "mpzDAG.h"
+// #include "mpzDAG.h"
 
-template <> struct tricotomia<BigIntegerForBitMask> {
-    BigIntegerForBitMask g;
-    BigIntegerForBitMask p;
-    BigIntegerForBitMask d;
-    char is1Or2;
-    char is1Either2;
+// template <> struct tricotomia<BigIntegerForBitMask> {
+//     BigIntegerForBitMask g;
+//     BigIntegerForBitMask p;
+//     BigIntegerForBitMask d;
+//     char is1Or2;
+//     char is1Either2;
+//
+//     tricotomia(BigIntegerForBitMask g, BigIntegerForBitMask p, BigIntegerForBitMask d) : g(g), p(p), d(d), is1Or2{0}, is1Either2{0}
+//     {
+//     }
+//
+//
+//
+//
+// };
 
-    tricotomia(BigIntegerForBitMask g, BigIntegerForBitMask p, BigIntegerForBitMask d) : g(g), p(p), d(d), is1Or2{0}, is1Either2{0}
-    {
-    }
-
-
-
-
-};
+#include "BIgInteger2.h"
 
 int main() {
 
-    dag<size_t> dg;
-    auto two = dg.get(2);
+    dag<size_t> dg(0, 1);
+    auto two = dg.get<true>(2);
     auto four = dg.get(4);
     auto six = dg.get(8);
     std::cout << (int)dg.Or(two, four)->compareWith(six) << std::endl;
+
+    BigInteger2 zero(0), one(1);
+    dag<BigInteger2> dag2(zero, one);
+    auto two_ = dag2.get<true>(2);
+    auto four_ = dag2.get(4);
+    auto eight_ = dag2.get(8);
+    std::cout << (int)dg.Or(two, four)->compareWith(six) << std::endl;
+
 
 ///*
 //    tricotomia<unsigned long> t{818};
