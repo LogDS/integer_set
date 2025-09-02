@@ -21,7 +21,7 @@
 #include <cassert>
 
 //
-// https://www.di.ens.fr/~jv/HomePage/pdf/dichotomy09.pdf
+// https://www.di.ens.fr/~jv/HomePage/pdf/dichotomy09.pdf, https://hal.science/hal-01239120v1/document
 //
 
 #ifndef INTEGER_SETS_BASIC_OPERATIONS_H
@@ -117,7 +117,7 @@ struct tricotomiaNode {
         } else {
             if (is1Or0) return 0;
             Numeric dv =  d_sum0->compute<Numeric>();
-            Numeric pv =  p->compute<Numeric>();
+            size_t pv =  p->compute<size_t>();
             Numeric gv =  g_prod1->compute<Numeric>();
             Numeric result = (dv+((Numeric)std::pow(2, std::pow(2, pv)))*gv);
             return result;
@@ -256,25 +256,25 @@ template <typename Numeric> struct dag {
 
     tricotomiaNode* tauConstructor(tricotomiaNode* g, tricotomiaNode* p, tricotomiaNode* d) {
         Numeric gv = g->compute<Numeric>();
-        Numeric pv = p->compute<Numeric>();
+        size_t pv = p->compute<size_t>();
         Numeric dv = d->compute<Numeric>();
         Numeric n = (dv+((Numeric)std::pow(2, std::pow(2, pv)))*gv);
         return &innerDag.insert(std::make_pair(n, tricotomiaNode{g, p, d, 0, 0})).first->second;
 
     }
 
-    tricotomiaNode* Constructor(tricotomiaNode* g, tricotomiaNode* p, tricotomiaNode* d) {
-        char result =p->compareWith(g->p);
-        if (result > 0)
-            return C1(g, p, d);
-        else if (result == 0)
-            return C1(g->d_sum0, p, A(d, g->g_prod1));
-        else
-            return Constructor(Constructor(g->d_sum0, p, d),g->p, g->g_prod1);
-    }
+    // tricotomiaNode* Constructor(tricotomiaNode* g, tricotomiaNode* p, tricotomiaNode* d) {
+    //     char result =p->compareWith(g->p);
+    //     if (result > 0)
+    //         return C1(g, p, d);
+    //     else if (result == 0)
+    //         return C1(g->d_sum0, p, A(d, g->g_prod1));
+    //     else
+    //         return Constructor(Constructor(g->d_sum0, p, d),g->p, g->g_prod1);
+    // }
 
     tricotomiaNode* And(tricotomiaNode* a, tricotomiaNode* b) {
-        if (a->isZero()) {
+        if (a->isZero() || b->isZero()) {
             return get(0);
         }  /*else if (a->isTwo()) {
             return get(b->compute<Numeric>() & 2);
@@ -290,8 +290,11 @@ template <typename Numeric> struct dag {
             else if (b->p->compareWith(get(0)) == 0)
                 // a is jut one, so if the and returns zero, all the other elements should be zero, too
                 if (get(b->d_sum0->compute<Numeric>() & 1)->isOne()) return a; else return get(0);
-            else
-                tauConstructor(b->g_prod1, b->p, And(a->d_sum0, b->d_sum0));
+            else {
+                auto aval = a->compute<size_t>();
+                auto bval = b->compute<size_t>();
+                return And(a/*->d_sum0*/, b->d_sum0); //tauConstructor(b->g_prod1, b->p, And(a/*->d_sum0*/, b->d_sum0));
+            }
         } else if (a->p->compareWith(b->p) < 0) {
             return And(a, b->d_sum0);
         } else {
@@ -302,7 +305,7 @@ template <typename Numeric> struct dag {
     tricotomiaNode* Or(tricotomiaNode* a, tricotomiaNode* b) {
         if (a->isZero()) {
             return b;
-        }  /*else if (a->isTwo()) {
+        } else if (b->isZero()) { return a; } /*else if (a->isTwo()) {
             return get(b->compute<Numeric>() & 2);
         }*/ else if (a == b) {
             return a;
@@ -322,14 +325,14 @@ template <typename Numeric> struct dag {
         }
     }
 
-    tricotomiaNode* twice(tricotomiaNode* t) {
-        if (t->isZero())
-            return t;
-        else if (t->isOne())
-            return get(2);
-        else
-            return Constructor(twice(t->g_prod1), t->p, twice(t->d_sum0));
-    }
+    // tricotomiaNode* twice(tricotomiaNode* t) {
+    //     if (t->isZero())
+    //         return t;
+    //     else if (t->isOne())
+    //         return get(2);
+    //     else
+    //         return Constructor(twice(t->g_prod1), t->p, twice(t->d_sum0));
+    // }
 
 private:
     tricotomiaNode* xp(tricotomiaNode* lhs) {
@@ -345,38 +348,38 @@ private:
         }
     }
 
-    tricotomiaNode* A(tricotomiaNode* a, tricotomiaNode* b) {
-        if (a->isZero()) {
-            return b;
-        } else if (a->isOne()) {
-            return increment(b);
-        } /*else if (a->isTwo()) {
-            return increment(increment(b));
-        }*/ else if (a == b) {
-            return twice(a);
-        } else if (a->compareWith(b) > 0) {
-            return A(b,a);
-        } else if (a->p->compareWith(b->p) < 0) {
-            return Constructor(A(a, b->d_sum0), b->p, b->g_prod1);
-        } else
-            return Am(a->g_prod1, b->g_prod1);
+    // tricotomiaNode* A(tricotomiaNode* a, tricotomiaNode* b) {
+    //     if (a->isZero()) {
+    //         return b;
+    //     } else if (a->isOne()) {
+    //         return increment(b);
+    //     } /*else if (a->isTwo()) {
+    //         return increment(increment(b));
+    //     }*/ else if (a == b) {
+    //         return twice(a);
+    //     } else if (a->compareWith(b) > 0) {
+    //         return A(b,a);
+    //     } else if (a->p->compareWith(b->p) < 0) {
+    //         return Constructor(A(a, b->d_sum0), b->p, b->g_prod1);
+    //     } else
+    //         return Am(a->g_prod1, b->g_prod1);
+    //
+    // }
 
-    }
+    // tricotomiaNode* C1(tricotomiaNode* g, tricotomiaNode* p, tricotomiaNode* d) {
+    //     char comparison = p->compareWith(d->p);
+    //     if ((d->d_sum0 == nullptr && d->g_prod1 == nullptr && d->p == nullptr) || (comparison > 0)) {
+    //         return tauConstructor(g, p, d);
+    //     } else if (comparison == 0) {
+    //         return tauConstructor(tauConstructor(g, p, d->d_sum0), increment(p), d->g_prod1);
+    //     } else {
+    //         return Constructor(C1(g, p, d->d_sum0), d->p, C1(get(0), p, d->g_prod1));
+    //     }
+    // }
 
-    tricotomiaNode* C1(tricotomiaNode* g, tricotomiaNode* p, tricotomiaNode* d) {
-        char comparison = p->compareWith(d->p);
-        if ((d->d_sum0 == nullptr && d->g_prod1 == nullptr && d->p == nullptr) || (comparison > 0)) {
-            return tauConstructor(g, p, d);
-        } else if (comparison == 0) {
-            return tauConstructor(tauConstructor(g, p, d->d_sum0), increment(p), d->g_prod1);
-        } else {
-            return Constructor(C1(g, p, d->d_sum0), d->p, C1(get(0), p, d->g_prod1));
-        }
-    }
-
-    tricotomiaNode* Am(tricotomiaNode* a, tricotomiaNode* b) {
-        return Constructor(A(a->d_sum0, b->d_sum0), a->p, A(a->g_prod1, b->g_prod1));
-    }
+    // tricotomiaNode* Am(tricotomiaNode* a, tricotomiaNode* b) {
+    //     return Constructor(A(a->d_sum0, b->d_sum0), a->p, A(a->g_prod1, b->g_prod1));
+    // }
 };
 
 #endif //INTEGER_SETS_BASIC_OPERATIONS_H

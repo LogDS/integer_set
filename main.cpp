@@ -23,17 +23,56 @@
 int main() {
 
     dag<size_t> dg(0, 1);
-    auto two = dg.get<true>(2);
-    auto four = dg.get(4);
-    auto six = dg.get(8);
-    std::cout << (int)dg.Or(two, four)->compareWith(six) << std::endl;
+    {
+        auto two = dg.get(2);
+        auto four = dg.get(4);
+        auto six = dg.get(8);
+        tricotomiaNode *ptr4 = dg.get(50);
+        tricotomiaNode *ptr17 = dg.get(17);
+        tricotomiaNode *ptr12 = dg.get(819);
+        tricotomiaNode *ptra12 = dg.get(12);
+        assert((int)dg.Or(two, four)->compareWith(six) < 0);
+        assert(dg.And(ptr4, ptr17)->compute<unsigned long>() == 16); // 50 & 17 == 16
+        assert(dg.And(four, ptr17)->compute<unsigned long>() ==0);
+        assert(dg.And(ptr4, ptr12)->compute<unsigned long>() == 50);
+        assert(dg.And(ptr4, ptra12)->compute<unsigned long>() == 0);
+        assert(dg.And(four, ptra12)->compute<unsigned long>() == 4);
+        assert(dg.And(ptr12, ptr17)->compute<unsigned long>() == 17);
+        assert(dg.And(ptra12, ptr17)->compute<unsigned long>() == 0);
+        assert(dg.Or(ptr4, ptr17)->compute<unsigned long>() == 51);
+        assert(dg.Or(four, ptr17)->compute<unsigned long>() == 21);
+        assert(dg.Or(ptr4, ptr12)->compute<unsigned long>() == 819);
+        assert(dg.Or(four, ptra12)->compute<unsigned long>() == 12);
+        assert(dg.Or(ptr12, ptr17)->compute<unsigned long>() == 819);
+        assert(dg.Or(ptra12, ptr17)->compute<unsigned long>() == 29);
+
+    }
 
     BigInteger2 zero(0), one(1);
     dag<BigInteger2> dag2(zero, one);
-    auto two_ = dag2.get<true>(2);
-    auto four_ = dag2.get(4);
-    auto eight_ = dag2.get(8);
-    std::cout << (int)dg.Or(two, four)->compareWith(six) << std::endl;
+    {
+        auto two = dag2.get(2);
+        auto four = dag2.get(4);
+        auto six = dag2.get(8);
+        tricotomiaNode *ptr4 = dag2.get(50);
+        tricotomiaNode *ptr17 = dag2.get(17);
+        tricotomiaNode *ptr12 = dag2.get(819);
+        tricotomiaNode *ptra12 = dag2.get(12);
+        assert((int)dag2.Or(two, four)->compareWith(six) < 0);
+        assert(dag2.And(ptr4, ptr17)->compute<unsigned long>() == 16); // 50 & 17 == 16
+        assert(dag2.And(four, ptr17)->compute<unsigned long>() ==0);
+        assert(dag2.And(ptr4, ptr12)->compute<unsigned long>() == 50);
+        assert(dag2.And(ptr4, ptra12)->compute<unsigned long>() == 0);
+        assert(dag2.And(four, ptra12)->compute<unsigned long>() == 4);
+        assert(dag2.And(ptr12, ptr17)->compute<unsigned long>() == 17);
+        assert(dag2.And(ptra12, ptr17)->compute<unsigned long>() == 0);
+        assert(dag2.Or(ptr4, ptr17)->compute<unsigned long>() == 51);
+        assert(dag2.Or(four, ptr17)->compute<unsigned long>() == 21);
+        assert(dag2.Or(ptr4, ptr12)->compute<unsigned long>() == 819);
+        assert(dag2.Or(four, ptra12)->compute<unsigned long>() == 12);
+        assert(dag2.Or(ptr12, ptr17)->compute<unsigned long>() == 819);
+        assert(dag2.Or(ptra12, ptr17)->compute<unsigned long>() == 29);
+    }
 
 
 ///*
