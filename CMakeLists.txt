@@ -39,8 +39,8 @@ set(LIBRDB rocksdb)
 
 add_library(integer_set_lib src/basic_operations.cpp
                             include/basic_operations.h
-        submodules/murmur3/MurmurHash3.cpp
-        submodules/murmur3/MurmurHash3.h
+        submodules/murmur/MurmurHash3.cpp
+        submodules/murmur/MurmurHash3.h
         src/BIgInteger2.cpp
 #                            src/BigIntegerForBitMask.cpp
 #                            include/BigIntegerForBitMask.h
