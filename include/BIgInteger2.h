@@ -10,7 +10,7 @@
 #include <string>
 
 #include "basic_operations.h"
-#include "../submodules/murmur3/MurmurHash3.h"
+#include "../submodules/murmur/MurmurHash3.h"
 
 static inline size_t MurmurHash3_size_t(const void *key, int len, uint32_t seed) {
     // https://stackoverflow.com/q/62452712/1376095
@@ -176,10 +176,10 @@ public:
     bool operator==(const BigInteger2 &other) const {
         return mpz_cmp(integ, other.integ) == 0;
     }
-    BigInteger2& operator/=(const BigInteger2 &other) const {
-        BigInteger2 result(*this);
-
-    }
+    // BigInteger2& operator/=(const BigInteger2 &other) const {
+    //     BigInteger2 result(*this);
+    //
+    // }
 
     operator size_t() const {
         return mpz_get_ui(integ);
@@ -209,7 +209,7 @@ public:
     }
 
     size_t l() const {
-        if (*this <= 0)
+        if (*this <= 0ULL)
             return 0;
         else {
             auto tmp = getMostSignificativeBit()-1;
@@ -252,9 +252,9 @@ template <> struct tricotomia<BigInteger2> {
     }
 
     tricotomia(const BigInteger2& n) {
-        if (n <= 1) {
+        if (n <= 1ULL) {
             is1Or2 = true;
-            is1Either2 = n <= 1;
+            is1Either2 = n <= 1ULL;
         } else {
             is1Or2 = false;
             auto p_int = n.ll() - 1;

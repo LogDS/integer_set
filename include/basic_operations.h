@@ -162,6 +162,13 @@ template <typename Numeric> struct dag {
         assert(innerDag.contains(one));
         //innerDag.insert(std::make_pair(2, tricotomiaNode{nullptr, nullptr, nullptr, 1, 0}));
     }
+    dag(const dag& copy) : innerDag(copy.innerDag) {}
+    dag(dag&& move) noexcept : innerDag(std::move(move.innerDag)) {}
+    dag& operator=(const dag& copy) = default;
+    dag& operator=(dag&& move) noexcept {
+        innerDag = std::move(move.innerDag);
+        return *this;
+    }
 
     /**
      * This operation returns the graph representation of the given number
