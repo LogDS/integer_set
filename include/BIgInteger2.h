@@ -209,7 +209,7 @@ public:
     }
 
     size_t l() const {
-        if (*this <= 0ULL)
+        if (*this <= (size_t)0ULL)
             return 0;
         else {
             auto tmp = getMostSignificativeBit()-1;
@@ -252,9 +252,9 @@ template <> struct tricotomia<BigInteger2> {
     }
 
     tricotomia(const BigInteger2& n) {
-        if (n <= 1ULL) {
+        if (n <= (size_t)1ULL) {
             is1Or2 = true;
-            is1Either2 = n <= 1ULL;
+            is1Either2 = n <= (size_t)1ULL;
         } else {
             is1Or2 = false;
             auto p_int = n.ll() - 1;
